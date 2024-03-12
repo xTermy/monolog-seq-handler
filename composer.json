@@ -23,9 +23,9 @@
     "require": {
         "php": "^8.2",
         "monolog/monolog": "^2.9",
-        "laravel/framework": "^9.0",
-        "php-http/client-implementation": "^1.0",
-        "php-http/httplug": "^1.0"
+        "laravel/framework": "*",
+        "php-http/client-implementation": "*",
+        "php-http/httplug": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5.10"
