@@ -283,9 +283,9 @@ class HttpHandler extends AbstractProcessingHandler
     /**
      * Returns the message factory.
      *
-     * @return GuzzleMessageFactory
+     * @return \Http\Message\MessageFactory\GuzzleMessageFactory
      */
-    protected function getMessageFactory(): GuzzleMessageFactory
+    protected function getMessageFactory(): \Http\Message\MessageFactory\GuzzleMessageFactory
     {
         return $this->messageFactory;
     }

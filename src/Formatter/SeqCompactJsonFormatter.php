@@ -110,7 +110,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      *
      * @throws \Msschl\Monolog\Exception\InvalidCodePathException
      */
-    protected function formatBatchJson(array $records)
+    protected function formatBatchJson(array $records): string
     {
         /* istanbul ignore next */
         throw new InvalidCodePathException();
@@ -194,7 +194,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      * @param  DateTime $message     The log timestamp.
      * @return void
      */
-    protected function processDatetime(array &$normalized, DateTime $datetime)
+    protected function processDatetime(array &$normalized, \Monolog\DateTimeImmutable $datetime)
     {
         $normalized['@t'] = $datetime->format(DateTime::ISO8601);
     }

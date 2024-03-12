@@ -5,6 +5,7 @@ namespace StormCode\SeqMonolog\Formatter;
 use DateTime;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\JsonFormatter;
+use \Throwable;
 
 abstract class SeqBaseFormatter extends JsonFormatter
 {
@@ -119,7 +120,7 @@ abstract class SeqBaseFormatter extends JsonFormatter
      * @param  DateTime $message     The log timestamp.
      * @return void
      */
-    protected abstract function processDatetime(array &$normalized, DateTime $datetime);
+    protected abstract function processDatetime(array &$normalized, \Monolog\DateTimeImmutable $datetime);
 
     /**
      * Processes the extras array.
@@ -136,7 +137,7 @@ abstract class SeqBaseFormatter extends JsonFormatter
      * @param  Throwable $e The throwable instance to normalize.
      * @return string
      */
-	protected function normalizeException($e) : string
+    protected function normalizeException(Throwable $e, int $depth = 0): array
     {
    		$previousText = '';
         if ($previous = $e->getPrevious()) {
