@@ -2,10 +2,7 @@
 
 namespace StormCode\SeqMonolog\Handler;
 
-use Http\Client\HttpClient;
-use Http\Discovery\HttpClientDiscovery;
-use Http\Discovery\MessageFactoryDiscovery;
-use Http\Message\MessageFactory;
+use GuzzleHttp\Client;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\AbstractProcessingHandler;
@@ -32,7 +29,7 @@ class HttpHandler extends AbstractProcessingHandler
     /**
      * The message factory instance.
      *
-     * @var \Http\Message\MessageFactory
+     * @var GuzzleMessageFactory
      */
     protected $messageFactory;
 
@@ -55,22 +52,16 @@ class HttpHandler extends AbstractProcessingHandler
      *
      * @param  array                $options The array of options consisting of the uri, method, headers and protocol
      *                                       version.
-     * @param  HttpClient|null      $client  An instance of a psr-7 http client implementation or null when the
-     *                                       HttpClientDiscovery should be used to find an instance.
-     * @param  MessageFactory|null  $factory An instance of a psr-7 message factory implementation or null when
-     *                                       the MessageFactoryDiscovery should be used to find an instance.
      * @param  int                  $level   The minimum logging level at which this handler will be triggered.
      * @param  boolean              $bubble  Whether the messages that are handled can bubble up the stack or not.
      */
 	public function __construct(
 		array $options = [],
-		HttpClient $client = null,
-		MessageFactory $factory = null,
 		$level = Logger::DEBUG,
 		$bubble = true
 	) {
-		$this->client = $client ?: HttpClientDiscovery::find();
-		$this->messageFactory = $factory ?: MessageFactoryDiscovery::find();
+		$this->client = new Client();
+		$this->messageFactory = new \Http\Message\MessageFactory\GuzzleMessageFactory();
 
 		$this->setOptions($options);
 
@@ -282,9 +273,9 @@ class HttpHandler extends AbstractProcessingHandler
 	/**
      * Returns the HTTP adapter.
      *
-     * @return \Http\Client\HttpClient
+     * @return Client
      */
-    protected function getHttpClient(): HttpClient
+    protected function getHttpClient(): Client
     {
         return $this->client;
     }
@@ -292,9 +283,9 @@ class HttpHandler extends AbstractProcessingHandler
     /**
      * Returns the message factory.
      *
-     * @return \Http\Message\MessageFactory
+     * @return GuzzleMessageFactory
      */
-    protected function getMessageFactory(): MessageFactory
+    protected function getMessageFactory(): GuzzleMessageFactory
     {
         return $this->messageFactory;
     }

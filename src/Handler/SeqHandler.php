@@ -2,7 +2,6 @@
 
 namespace StormCode\SeqMonolog\Handler;
 
-use Http\Client\HttpClient;
 use Http\Message\MessageFactory;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\HandlerInterface;
@@ -57,8 +56,6 @@ class SeqHandler extends HttpHandler
 	 * @param  string|null          $apiKey    A Seq API key to authenticate or tag messages from the logger.
 	 * @param  int                  $level     The minimum logging level at which this handler will be triggered.
 	 * @param  boolean              $bubble    Whether the messages that are handled can bubble up the stack or not.
-	 * @param  HttpClient|null      $client    An instance of a psr-7 http client implementation or null when the
-     *                                         HttpClientDiscovery should be used to find an instance.
 	 * @param  MessageFactory|null  $factory   An instance of a psr-7 message factory implementation or null when
      *                                         the MessageFactoryDiscovery should be used to find an instance.
 	 */
@@ -66,17 +63,13 @@ class SeqHandler extends HttpHandler
 		string $serverUri,
 		string $apiKey = null,
 		$level = Logger::DEBUG,
-		$bubble = true,
-		HttpClient $client = null,
-		MessageFactory $factory = null
+		$bubble = true
 	) {
 		$this->setServerUri($serverUri);
 		$this->setApiKey($apiKey);
 
 		parent::__construct(
 			$this->options,
-			$client,
-			$factory,
 			$level,
 			$bubble
 		);
