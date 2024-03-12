@@ -5,6 +5,7 @@ namespace StormCode\SeqMonolog\Formatter;
 use DateTime;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Utils;
 use \Throwable;
 
 abstract class SeqBaseFormatter extends JsonFormatter
@@ -135,23 +136,55 @@ abstract class SeqBaseFormatter extends JsonFormatter
      * Normalizes an exception to a string.
      *
      * @param  Throwable $e The throwable instance to normalize.
-     * @return string
+     * @return array
      */
     protected function normalizeException(Throwable $e, int $depth = 0): array
     {
-   		$previousText = '';
+        if ($depth > $this->maxNormalizeDepth) {
+            return ['Over ' . $this->maxNormalizeDepth . ' levels deep, aborting normalization'];
+        }
+
+        if ($e instanceof \JsonSerializable) {
+            return (array) $e->jsonSerialize();
+        }
+
+        $data = [
+            'class' => Utils::getClass($e),
+            'message' => $e->getMessage(),
+            'code' => (int) $e->getCode(),
+            'file' => $e->getFile().':'.$e->getLine(),
+        ];
+
+        if ($e instanceof \SoapFault) {
+            if (isset($e->faultcode)) {
+                $data['faultcode'] = $e->faultcode;
+            }
+
+            if (isset($e->faultactor)) {
+                $data['faultactor'] = $e->faultactor;
+            }
+
+            if (isset($e->detail)) {
+                if (is_string($e->detail)) {
+                    $data['detail'] = $e->detail;
+                } elseif (is_object($e->detail) || is_array($e->detail)) {
+                    $data['detail'] = $this->toJson($e->detail, true);
+                }
+            }
+        }
+
+        $trace = $e->getTrace();
+        foreach ($trace as $frame) {
+            if (isset($frame['file'])) {
+                $data['trace'][] = $frame['file'].':'.$frame['line'];
+            }
+        }
+
         if ($previous = $e->getPrevious()) {
-            do {
-                $previousText .= ', ' . get_class($previous) . '(code: ' . $previous->getCode() . '): ' . $previous->getMessage() . ' at ' . $previous->getFile() . ':' . $previous->getLine();
-            } while ($previous = $previous->getPrevious());
+            $data['previous'] = $this->normalizeException($previous, $depth + 1);
         }
 
-        $str = '[object] (' . get_class($e) . '(code: ' . $e->getCode() . '): ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine() . $previousText . ')';
-        if ($this->includeStacktraces) {
-            $str .= "\n[stacktrace]\n" . $e->getTraceAsString() . "\n";
-        }
-
-        return $str;
+        return $data;
     }
 
     /**

@@ -303,7 +303,6 @@ class HttpHandler extends AbstractProcessingHandler
     	if (empty($uri)) {
     		return;
     	}
-
     	$request = $this->getMessageFactory()->createRequest(
     		$this->getMethod(),
     		$this->getUri(),
@@ -313,11 +312,12 @@ class HttpHandler extends AbstractProcessingHandler
     	);
 
     	try {
-    		$this->getHttpClient()->sendRequest($request);
-    	/* istanbul ignore next */
+    		$response = $this->getHttpClient()->sendRequest($request);
+            if ($response->getStatusCode() !== 201) {
+                \Log::driver('single')->error('[SEQ LOGGING ERROR] ' . $response->getBody());
+            }
     	} catch (\Exception $e) {
-    		// QUESTION(msschl): How to handle the thrown exceptions???
-    		/* istanbul ignore next */
+            \Log::driver('single')->error('[SEQ LOGGING ERROR] ' . $e->getMessage());
     		return;
     	}
     }

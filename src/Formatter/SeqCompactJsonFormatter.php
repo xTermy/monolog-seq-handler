@@ -228,7 +228,23 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
     {
         $exception = $this->extractException($context);
         if ($exception !== null) {
-            $normalized['@x'] = $this->normalizeException($exception);
+            $x = $this->normalizeException($exception);
+            if(isset($x['previous'])) {
+                if(isset($x['previous']['trace'])) {
+                    $x['previous']['trace'] = implode(PHP_EOL, $x['previous']['trace']);
+                }
+                $previousEnd = '';
+                foreach ($x['previous'] as $key => $val) {
+                    $previousEnd .= "\t".$key . ': ' . $val . PHP_EOL;
+                }
+                $x['previous'] = $previousEnd;
+            }
+            $x['trace'] = implode(PHP_EOL, $x['trace']);
+            $xEnd = '';
+            foreach($x as $key => $val) {
+                $xEnd .= $key.': '.$val.PHP_EOL;
+            }
+            $normalized['@x'] = $xEnd;
         }
     }
 

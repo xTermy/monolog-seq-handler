@@ -17,16 +17,6 @@ Install the latest version with
 $ composer require stormcode/monolog-seq-handler
 ```
 
-##### HTTP Clients
-
-In order to send HTTP requests, you need a HTTP adapter. This package relies on HTTPlug which is build on top of [PSR-7](https://www.php-fig.org/psr/psr-7/)
-and defines how HTTP message should be sent and received. You can use any library to send HTTP messages that
-implements [php-http/client-implementation](https://packagist.org/providers/php-http/client-implementation).
-
-Here is a list of all officially supported clients and adapters by HTTPlug: http://docs.php-http.org/en/latest/clients.html
-
-Read more about HTTPlug in [their docs](http://docs.php-http.org/en/latest/httplug/users.html).
-
 Basic Usage
 -----------
 
@@ -47,13 +37,49 @@ $log->warning('Foo');
 $log->error('Bar');
 ```
 
-To authenticate or tag messages from the logger, set a Api-Key:
+To authenticate or tag messages from the logger, set an Api-Key:
 ```php
 $log->pushHandler(new SeqHandler('https://seq-server/', 'API-KEY'));
 ```
+
+Typical Laravel Usage
+---------------------
+To use logs with ```Log::error('Error')``` to ```config/logging.php``` add:
+
+```php
+'seq' => [
+    'driver' => 'monolog',
+    'handler' => StormCode\SeqMonolog\Handler\SeqHandler::class,
+    'with' => [
+        'serverUri' => env('SEQ_URL'),
+        'apiKey' => env('SEQ_API_KEY', null),
+        'level' => Monolog\Logger::DEBUG,
+        'bubble' => true
+    ],
+    'formatter' => StormCode\SeqMonolog\Formatter\SeqCompactJsonFormatter::class,
+    'formatter_with' => [
+        'batchMode' => 1, //1 OR 2
+    ],
+],
+```
+Then add this to your ```.env``` file:
+```.dotenv
+LOG_CHANNEL=seq
+
+SEQ_URL=http://localhost:5341/
+SEQ_API_KEY=YOUR_API_KEY
+```
+Now you can freely use seq
 
 License
 -------
 
 This project is licensed under the terms of the MIT license.
 See the [LICENSE](LICENSE.md) file for license rights and limitations.
+
+
+
+
+
+
+
